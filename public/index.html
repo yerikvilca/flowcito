@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Uploader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #file-input {
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload and Display CSV File</h1>
+    <form id="upload-form">
+        <input type="file" id="file-input" name="csvfile" accept=".csv" />
+        <button type="submit">Upload</button>
+    </form>
+    <table id="csv-table"></table>
+
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('file-input');
+            const formData = new FormData();
+            formData.append('csvfile', fileInput.files[0]);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => displayCSV(data))
+            .catch(error => console.error('Error:', error));
+        });
+
+        function displayCSV(text) {
+            const lines = text.split('\n');
+            const table = document.getElementById('csv-table');
+            table.innerHTML = '';
+
+            lines.forEach((line, index) => {
+                const row = document.createElement('tr');
+                const cells = line.split(',');
+
+                cells.forEach(cell => {
+                    const cellElement = document.createElement(index === 0 ? 'th' : 'td');
+                    cellElement.textContent = cell;
+                    row.appendChild(cellElement);
+                });
+
+                table.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html>
